@@ -5,7 +5,9 @@
         "eventLocation": "Online",
         "eventDescription":"Tech Conferency 2023 is an event where users can learn something new about tech products, and all related to that.",
         "eventImage":"https://www.adobe.com/content/dam/www/us/en/events/overview-page/eventshub_evergreen_opengraph_1200x630_2x.jpg",
-        "uid":"kfykmgiytensrnojn"
+        "uid":"kfykmgiytensrnojn",
+        "host": "IUvbld"
+
     },
     {
         "eventName":"Tech Conference 2023",

@@ -18,6 +18,9 @@ const CreateEventScreen = () => {
   const [eventDescription, setEventDescription] = useState('');
   const [eventDate, setEventDate] = useState(['Select Date']);
   const [uri, setUri] = useState('');
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
@@ -63,9 +66,9 @@ const CreateEventScreen = () => {
             defaultSource={require('../assets/images/placeholder.png')}
             source={{
               uri:
-                uri||'https://firebasestorage.googleapis.com/v0/b/skill-quake.appspot.com/o/placeholder.png?alt=media&token=6bc18465-38a0-4f60-819f-ec8e3987a6b2',
+                uri || 'https://firebasestorage.googleapis.com/v0/b/skill-quake.appspot.com/o/placeholder.png?alt=media&token=6bc18465-38a0-4f60-819f-ec8e3987a6b2',
             }}
-            // alt='r'
+          // alt='r'
           />
           <Text style={{ color: 'gray', textAlign: 'center' }}>
             Set Event Thumbnail
@@ -94,7 +97,7 @@ const CreateEventScreen = () => {
           </TouchableOpacity>
 
           {/* Integrated TimeRangePicker component */}
-          <Text style={{color: 'black', fontSize: 18, marginLeft: 5}}>Event Timings</Text>
+          <Text style={{ color: 'black', fontSize: 18, marginLeft: 5 }}>Event Timings</Text>
           <TimeRangePicker onChange={setEventTimings} value={eventTimings} />
 
         </View>
@@ -107,8 +110,9 @@ const CreateEventScreen = () => {
         <DateTimePickerModal
           isVisible={isDatePickerVisible}
           mode="date"
+          minimumDate={tomorrow}
           onConfirm={handleConfirm}
-          date={new Date()}
+          date={tomorrow}
           onCancel={hideDatePicker}
         />
       </View>
