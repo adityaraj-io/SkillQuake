@@ -10,17 +10,26 @@ import {
 } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import TimeRangePicker from '../components/TimeRangePicker'; // Adjust the path accordingly
+import TimeRangePicker from '../components/TimeRangePicker';
+import auth from '@react-native-firebase/auth'
+import database from '@react-native-firebase/database'
+import storage from '@react-native-firebase/storage'
+import AlertModal from '../components/AlertModal';
+import LoadingModal from '../components/LoadingModal';
+import { useNavigation } from '@react-navigation/native';
 
 const CreateEventScreen = () => {
   const [eventName, setEventName] = useState('');
   const [eventTimings, setEventTimings] = useState(['Select', 'Timings']);
   const [eventDescription, setEventDescription] = useState('');
-  const [eventDate, setEventDate] = useState(['Select Date']);
+  const [eventDate, setEventDate] = useState('Select Date');
   const [uri, setUri] = useState('');
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
+  const [loading, setLoading] = useState(false)
+  const navigation = useNavigation();
+
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
@@ -40,8 +49,75 @@ const CreateEventScreen = () => {
     hideDatePicker();
   };
 
-  const handleCreateEvent = () => {
-    // Add your logic to handle creating the event
+  const formatTime = (time) => {
+    const hours = time.getHours();
+    const minutes = time.getMinutes();
+    const period = hours >= 12 ? 'pm' : 'am';
+    const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    return `${formattedHours}:${formattedMinutes}${period}`;
+  };
+
+
+  const handleCreateEvent = async() => {
+    if(eventName===''||eventDescription===''||eventDate==='Select Date'||eventTimings[0]==='Select'||eventTimings[1]==='Timings'||uri===''){
+      // AlertModal({true, })
+      alert(`All Fields are mandatory including thumbnail!`)
+    }else{
+      try {
+        setLoading(true)
+        const uriRef = storage().ref(`/events-pics/${new Date().getTime()}`)
+        await uriRef.putFile(uri).catch((err)=>{
+          alert(err.message)
+          setLoading(true)
+        }).then(async()=>{
+          let url = await uriRef.getDownloadURL();
+          let time = new Date().getTime();
+          let timeEvent = eventDate + " || " + formatTime(new Date(eventTimings[0])) + " - " + formatTime(new Date(eventTimings[1]))
+          let host = auth().currentUser.displayName;
+          let uid = auth().currentUser.uid
+          database().ref(`/events/${time}`).set({
+            eventName,
+            eventTime: timeEvent,
+            actualTime: eventTimings,
+            actualDate: eventDate,
+            host: host,
+            uid: uid,
+            id: time,
+            thumbnail: url,
+            eventDescription,
+          }).catch((err)=>{
+            alert(err.message)
+            setLoading(true)
+          }).then(()=>{
+            database().ref(`/users/${uid}/events/${time}`).set({
+              eventName,
+            eventTime: timeEvent,
+            actualTime: eventTimings,
+            actualDate: eventDate,
+            host: host,
+            uid: uid,
+            id: time,
+            thumbnail: url,
+            eventDescription,
+            }).catch((Err)=>{
+              alert(Err.message)
+              setLoading(true)
+            }).then(()=>{
+              alert('Event Created!')
+              setLoading(false)
+              navigation.goBack();
+              
+            })
+          })
+        })
+
+      } catch (error) {
+        alert(error.message)
+        setLoading(true)
+
+      }
+    }
   };
 
   const handlePickImage = async () => {
@@ -51,6 +127,8 @@ const CreateEventScreen = () => {
       });
 
       setUri(image.path);
+      console.log(image.path);
+
     } catch (error) {
       console.log('Error picking image:', error);
     }
@@ -62,8 +140,6 @@ const CreateEventScreen = () => {
         <TouchableOpacity onPress={handlePickImage}>
           <Image
             style={styles.image}
-            progressiveRenderingEnabled
-            defaultSource={require('../assets/images/placeholder.png')}
             source={{
               uri:
                 uri || 'https://firebasestorage.googleapis.com/v0/b/skill-quake.appspot.com/o/placeholder.png?alt=media&token=6bc18465-38a0-4f60-819f-ec8e3987a6b2',
@@ -115,7 +191,9 @@ const CreateEventScreen = () => {
           date={tomorrow}
           onCancel={hideDatePicker}
         />
+
       </View>
+      <LoadingModal isVisible={loading} />
     </ScrollView>
   );
 };
