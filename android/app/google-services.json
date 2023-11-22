@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1069544820206",
+    "project_id": "skill-quake",
+    "storage_bucket": "skill-quake.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1069544820206:android:22dcf3cdd7422e41a952ff",
+        "android_client_info": {
+          "package_name": "com.skillquake"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeOEwb8Fn_gYf4PlUSvaUKDjrRnXtV2_0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
