@@ -52,7 +52,6 @@ const EventDetailScreen = ({ route, navigation }) => {
           <Text style={styles.joinButtonText}>{isJoinButtonEnabled ? user.uid===uid?'Start Event':'Join Event' :  user.uid===uid?'Can\'t Start Event Now':'Can\'t Join Event Now'}</Text>
         </TouchableOpacity>
 
-        
       </View>
     </ScrollView>
   );
