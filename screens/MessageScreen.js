@@ -1,63 +1,61 @@
-import React, { useEffect, useState } from 'react'
-import { FlatList, KeyboardAvoidingView, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import React, { useEffect, useState, useRef } from 'react';
+import { FlatList, KeyboardAvoidingView, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import MessageInput from '../components/MessageInput';
 import EncryptMessage from '../components/EncryptMessage';
 import Message from '../components/Message';
-import auth from '@react-native-firebase/auth'
+import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 
-
 const MessageScreen = ({ route, navigation }) => {
-
     const { ruid, rname } = route.params;
-    const [input, setInput] = useState('')
+    const [input, setInput] = useState('');
     const user = auth().currentUser;
-    const [chats, setChats] = useState([])
-    const [recieverData, setRecieverData] = useState({})
+    const [chats, setChats] = useState([]);
+    const [recieverData, setRecieverData] = useState({});
+    const scrollViewRef = useRef();
 
     const getMessages = () => {
         let ref = database().ref(`/users/${user.uid}/messages/${ruid}`);
         try {
             ref.on('value', (snapshot) => {
                 if (snapshot.exists()) {
-                    setChats(Object.values(snapshot.val()))
-                    console.log(Object.values(snapshot.val()))
-                    // console.log();
+                    setChats(Object.values(snapshot.val()));
                 } else {
-                    console.log('No Messages Yet');
-                    setChats(null)
+                    setChats([]);
                 }
-            })
+            });
         } catch (error) {
-            Alert('Error Occured Restart App ' + error.message)
+            console.error('Error fetching messages:', error.message);
         }
-    }
+    };
 
     const getRecieverData = () => {
         let ref = database().ref(`/users/${ruid}`);
         try {
             ref.once('value', (snapshot) => {
-                console.log(snapshot.val());
-                setRecieverData(snapshot.val())
-            })
+                setRecieverData(snapshot.val());
+            });
         } catch (error) {
-
+            console.error('Error fetching receiver data:', error.message);
         }
-    }
+    };
 
     useEffect(() => {
         navigation.setOptions({
-            headerTitle: () => (<TouchableOpacity onPress={()=>navigation.navigate('SeeProfile', {host: rname, hostid: ruid})}>
-            <Text style={{color: '#333', fontSize: 20, fontWeight: 'bold'}}>{rname}</Text>
-          </TouchableOpacity>),
-            
+            headerTitle: () => (
+                <TouchableOpacity onPress={() => navigation.navigate('SeeProfile', { host: rname, hostid: ruid })}>
+                    <Text style={{ color: '#333', fontSize: 20, fontWeight: 'bold' }}>{rname}</Text>
+                </TouchableOpacity>
+            ),
         });
 
         getMessages();
         getRecieverData();
+    }, []);
 
-
-    }, [])
+    useEffect(() => {
+        scrollToBottom();
+    }, [chats]);
 
     const sendText = () => {
         if (input !== '') {
@@ -104,20 +102,25 @@ const MessageScreen = ({ route, navigation }) => {
                 profileImage: user.photoURL
             });
 
-            setInput('')
-
-
+            setInput('');
+            scrollToBottom();
         }
+    };
 
-
-    }
+    const scrollToBottom = () => {
+        if (scrollViewRef.current) {
+            scrollViewRef.current.scrollToEnd({ animated: true });
+        }
+    };
 
     return (
         <View style={styles.container}>
             <KeyboardAvoidingView style={{ flex: 1 }} >
                 <View style={styles.container}>
-                    <ScrollView>
-
+                    <ScrollView
+                        ref={scrollViewRef}
+                        onContentSizeChange={scrollToBottom}
+                    >
                         <EncryptMessage />
                         <View style={styles.messageContainer}>
                             {chats && chats.length > 0 ? (
@@ -130,31 +133,27 @@ const MessageScreen = ({ route, navigation }) => {
                                 <></>
                             )}
                         </View>
-
-
-
                     </ScrollView>
-
                 </View>
                 <View>
                     <MessageInput value={input} onSend={sendText} onChangeText={setInput} />
                 </View>
             </KeyboardAvoidingView>
         </View>
-    )
-}
+    );
+};
 
-export default MessageScreen
+export default MessageScreen;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F5F5'
+        backgroundColor: '#F5F5F5',
     },
     containerView: {
-        backgroundColor: '#F5F5F5'
+        backgroundColor: '#F5F5F5',
     },
     messageContainer: {
-        padding: 10
-    }
-})
+        padding: 10,
+    },
+});
