@@ -1,5 +1,9 @@
 import React from 'react'
 import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+dayjs.extend(relativeTime)
+
 const ChatItem = ({onPress=()=>{}, userName='User Name Here', profileImageUri='', lastMessage, isBadgeShown=false, badgeCount, lastMessageTime='', borderShown=true, onProfileImagePress=()=>{}}) => {
   return (
     <TouchableOpacity onPress={onPress} style={[styles.container, {borderBottomWidth: borderShown? StyleSheet.hairlineWidth:null}]}>
@@ -12,7 +16,7 @@ const ChatItem = ({onPress=()=>{}, userName='User Name Here', profileImageUri=''
             <Text style={{color: '#777777'}}>{lastMessage}</Text>
         </View>
         <View style={styles.timeContainer}>
-            <Text style={{color: 'gray', fontSize: 12}} >{lastMessageTime}</Text>
+            <Text style={{color: 'gray', fontSize: 12}} >{dayjs(lastMessageTime).fromNow()}</Text>
             {isBadgeShown && <Text style={styles.badge}>{badgeCount}</Text>}
         </View>
       </View>

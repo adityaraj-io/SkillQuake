@@ -1,0 +1,10 @@
+[
+    {
+        "uid":"uid",
+        "lastMessage": "Hi",
+        "lastMessageTime":"time",
+        "profileImage":"profileImage",
+        "username":"username",
+        "unreadMessages": 0
+    }
+]

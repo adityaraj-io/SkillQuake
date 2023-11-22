@@ -12,6 +12,8 @@ import EventDetailScreen from '../screens/EventDetail';
 import SearchEventScreen from '../screens/SearchEventScreen';
 import CreateEventScreen from '../screens/CreateEventScreen';
 import SeeProfile from '../screens/SeeProfile';
+import SearchPeople from '../screens/SearchPeople';
+import MessageScreen from '../screens/MessageScreen';
 
 const Stack = createNativeStackNavigator();
 const Navigator = () => {
@@ -24,6 +26,8 @@ const Navigator = () => {
             <Stack.Screen component={ForgotScreen} name='Forgot' />
             <Stack.Screen component={HomeScreen} name='Home' />
             <Stack.Screen component={EditProfileScreen} name='EditProfile' options={{headerShown: true}} />
+            <Stack.Screen component={MessageScreen} name='MessageScreen' options={{headerShown: true}} />
+            <Stack.Screen component={SearchPeople} name='SearchPeople' options={{headerShown: true, headerTitle: 'Search People'}} />
             <Stack.Screen component={EventDetailScreen} name='EventDetail' options={{headerShown: true}} />
             <Stack.Screen component={SearchEventScreen} name='SearchEvent' options={{headerShown: true, headerTitle: 'Search Events'}} />
             <Stack.Screen component={SeeProfile} name='SeeProfile' options={{headerShown: true}} />

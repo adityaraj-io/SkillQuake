@@ -57,6 +57,9 @@ const SearchEventScreen = ({ navigation }) => {
       {!loading ? (
         <FlatList
           data={filteredEvents}
+          ListEmptyComponent={<View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={{color: 'black', marginTop: 30}}>No Matches</Text>
+            </View>}
           renderItem={({ item }) => (
             <EventList
               eventName={item.eventName}
