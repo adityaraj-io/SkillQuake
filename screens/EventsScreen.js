@@ -1,23 +1,40 @@
-import React from 'react';
-import { StyleSheet, View, Text, StatusBar, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, Text, StatusBar, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import Events from '../components/Event';
 import EventList from '../components/EventList';
 import { useNavigation } from '@react-navigation/native';
+import database from '@react-native-firebase/database';
 
 const EventsScreen = () => {
   const navigation = useNavigation();
-  const dummyEventData = {
-    eventName: 'Tech Conference 2023',
-    eventTime: 'December 15, 2023 | 9:00 AM - 5:00 PM',
-    eventLocation: 'Convention Center, City Name',
-    eventDescription:
-      'Join us for an exciting day of technology discussions, workshops, and networking. Learn from industry experts and connect with fellow tech enthusiasts.',
-    eventImage: 'https://example.com/event-image.jpg', 
-  };
 
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true)
+
+  const getEvents = () => {
+    const ref = database().ref('/events');
+    try {
+      ref.on('value', (snapshot)=>{
+        if(snapshot.exists()){
+          setEvents(Object.values(snapshot.val()))
+          setLoading(false)
+        }else{
+          setEvents(null)
+          setLoading(false)
+        }
+      })
+    } catch (error) {
+      alert('Restart the app something went wrong')
+    }
+  }
+  useEffect(()=>{
+    getEvents();
+  }, [])
   return (
-    <ScrollView style={styles.container}>
+    <>
+    {!loading?<ScrollView style={styles.container}>
+      <View>
       <Text style={{ color: 'black', width: '100%', fontSize: 20, fontWeight: 'bold' }}>
         Hi, {auth().currentUser.displayName}
       </Text>
@@ -34,22 +51,52 @@ const EventsScreen = () => {
         Recommended Events
       </Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <Events eventName='App Agency Tour' eventTime='24 Nov, 2023' onPress={()=>navigation.navigate('EventDetail', {
-          eventName: dummyEventData.eventName, eventTime: dummyEventData.eventTime, eventLocation: dummyEventData.eventLocation, eventDescription: dummyEventData.eventDescription, eventImage: dummyEventData.eventImage
-        })} />
-        <Events eventName='Au Agency Tour' eventTime='24 Nov, 2023' />
+      {events !==null ? (events).map((item) => (
+              <Events eventName={item.eventName} onPress={()=>navigation.navigate('EventDetail',{
+                eventName: item.eventName,
+                eventTime: item.eventTime,
+                eventDescription: item.eventDescription,
+                eventLocation: 'online',
+                eventImage: item.thumbnail,
+                host: item.host,
+                uid: item.uid,
+                actualDate: item.actualDate
+              })} eventTime={item.eventTime} imageSource={item.thumbnail} key={item.id} />
+            )) :<>
+            <View>
+              <Text style={[styles.userEmail, { color: 'gray' }]}>No Events to Display</Text>
+            </View>
+            <View style={styles.separator}></View>
+          </>}
       </ScrollView>
       <Text style={{ color: 'black', width: '100%', fontSize: 20, fontWeight: 'bold', marginVertical: 15 }}>
         All Events
       </Text>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <EventList eventName='Python Class' eventTime='23 Nov, 2023' />
-        <EventList eventName='Python Class' eventTime='23 Nov, 2023' />
-        <EventList eventName='Python Class' eventTime='23 Nov, 2023' />
-        <EventList eventName='Python Class' eventTime='23 Nov, 2023' />
+      {events !==null ? (events).map((item) => (
+              <EventList eventName={item.eventName} onPress={()=>navigation.navigate('EventDetail',{
+                eventName: item.eventName,
+                eventTime: item.eventTime,
+                eventDescription: item.eventDescription,
+                eventLocation: 'online',
+                eventImage: item.thumbnail,
+                uid: item.uid,
+                host: item.host,
+                actualDate: item.actualDate
+              })} eventTime={item.eventTime} imageSource={item.thumbnail} host={item.host} key={item.id} />
+            )) :<>
+            <View>
+              <Text style={[styles.userEmail, { color: 'gray' }]}>No Events to Display</Text>
+            </View>
+            <View style={styles.separator}></View>
+          </>}
       </ScrollView>
       <StatusBar backgroundColor={'#fff'} barStyle={'dark-content'} />
-    </ScrollView>
+      </View>
+    </ScrollView>:<View style={{alignItems: 'center', justifyContent: 'center', flex: 1, backgroundColor: '#fff'}}>
+        <ActivityIndicator size={'small'} color={'royalblue'} />
+        </View>}
+    </>
   );
 };
 

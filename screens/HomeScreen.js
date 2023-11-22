@@ -26,7 +26,7 @@ const HomeScreen = () => {
           <Image style={{width: size, height: size, borderRadius: 100, backgroundColor: 'gray',  borderColor: color, borderWidth: StyleSheet.hairlineWidth+1}} source={{uri: auth().currentUser.photoURL}} />
         }
       },
-      tabBarActiveTintColor: 'black',
+      tabBarActiveTintColor: 'royalblue',
       tabBarInactiveTintColor: 'gray',
       headerShown: false,
     })}

@@ -1,40 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import auth from '@react-native-firebase/auth';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, StyleSheet, Image , ScrollView, ActivityIndicator } from 'react-native';
 import database from '@react-native-firebase/database'
 import Events from '../components/Event';
 
-const ProfileScreen = () => {
-  const user = auth().currentUser;
-  const navigation = useNavigation();
+const SeeProfile = ({route, navigation}) => {
   const [data, setData] = useState();
   const [loading, setLoading] = useState(true)
   const [events, setEvents] = useState([]);
-
-
-  const handleSignOut = () => {
-    try {
-      setLoading(true)
-      auth().signOut().then(() => {
-        navigation.replace('Start')
-        setLoading(false)
-
-      }).catch((error) => {
-        alert(error.message)
-        setLoading(false)
-
-      })
-    } catch (error) {
-      alert(error.message)
-      setLoading(false)
-
-    }
-  }
+  const {host, hostid} = route.params;
+ 
 
   const getUserData = () => {
     try {
-      let ref = database().ref(`/users/${auth().currentUser.uid}`);
+      let ref = database().ref(`/users/${hostid}`);
       ref.on('value', (snapshot) => {
         setData(snapshot.val())
         if(snapshot.val().events){
@@ -51,19 +29,23 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     getUserData();
+    navigation.setOptions({
+        headerTitle: host,
+    })
   }, [])
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+  <ScrollView contentContainerStyle={styles.container}>
       {!loading ? <>
         <View style={styles.profileContainer}>
-          <Image source={{ uri: user.photoURL }} style={styles.profileImage} />
-          <Text style={styles.userName}>{user.displayName}</Text>
-          <Text style={styles.userEmail}>{user.email}</Text>
+          <Image source={{ uri: data.profileImage }} style={styles.profileImage} />
+          <Text style={styles.userName}>{data.name}</Text>
+          <Text style={styles.userEmail}>{data.email}</Text>
+          {/* <View style={styles.separator}></View> */}
           
           {/* Contact Information Section */}
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Contact Information</Text>
-            <Text style={styles.cardText}>{user.email}</Text>
+            <Text style={styles.cardText}>{data.email}</Text>
             {/* Add more contact information fields as needed */}
           </View>
 
@@ -80,10 +62,13 @@ const ProfileScreen = () => {
             {/* Add more interest fields as needed */}
           </View>
 
+          {/* Additional Sections */}
+          {/* Add more sections as needed, following the same structure */}
           <Text style={[styles.userName, { textAlign: 'left', width: '100%', fontSize: 18, marginLeft: 10 }]}>Organized Events</Text>
+
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ marginVertical: 10 }}>
             {events !==null ? (events).map((item) => (
-              <Events onPress={()=>navigation.navigate('EventDetail',{
+              <Events eventName={item.eventName} eventTime={item.eventTime} onPress={()=>navigation.navigate('EventDetail',{
                 eventName: item.eventName,
                 eventTime: item.eventTime,
                 eventDescription: item.eventDescription,
@@ -92,7 +77,7 @@ const ProfileScreen = () => {
                 uid: item.uid,
                 host: item.host,
                 actualDate: item.actualDate
-              })} eventName={item.eventName} eventTime={item.eventTime} imageSource={item.thumbnail} key={item.id} />
+              })} imageSource={item.thumbnail} key={item.id} />
             )) :<>
             <View>
               <Text style={[styles.userEmail, { color: 'gray' }]}>No Events Organized</Text>
@@ -101,21 +86,11 @@ const ProfileScreen = () => {
           </>}
             {/* <Events eventName='Au Agency Tour' eventTime='24 Nov, 2023' /> */}
           </ScrollView>
-
-          {/* Additional Sections */}
-          {/* Add more sections as needed, following the same structure */}
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate('EditProfile')} style={styles.editButton}>
-          <Text style={styles.editButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleSignOut} style={[styles.editButton, { marginVertical: 5 }]}>
-          <Text style={styles.editButtonText}>Sign Out</Text>
-        </TouchableOpacity>
       </> : <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <ActivityIndicator size={'small'} color={'royalblue'} />
       </View>}
     </ScrollView>
-
   );
 };
 
@@ -124,7 +99,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingTop: 5,
   },
   separator: {
     width: '100%',
@@ -187,4 +162,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen;
+export default SeeProfile;

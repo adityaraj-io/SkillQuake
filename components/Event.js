@@ -5,7 +5,7 @@ const Events = ({eventName='', eventTime='', onPress=()=>{}, imageSource}) => {
   return (
     <View style={{width: Dimensions.get('window').width-Dimensions.get('window').width*10/100, marginRight: 20}}>
         <TouchableOpacity  onPress={onPress} style={styles.container}>
-            <Image style={styles.image} source={require('../assets/images/back.jpg')} />
+            <Image style={styles.image} source={{uri: imageSource}} />
             <Text style={styles.title}>{eventName}</Text>
             <Text style={styles.subTitle}>on {eventTime}</Text>
         </TouchableOpacity>
@@ -28,8 +28,8 @@ const styles = StyleSheet.create({
     image: {
         width: '100%',
         height: 180,
-        borderTopRightRadius: 15,
-        borderTopLeftRadius: 15,
+        borderTopRightRadius: 5,
+        borderTopLeftRadius: 5,
     },
     title:{
         fontSize: 16,

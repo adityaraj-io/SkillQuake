@@ -11,6 +11,7 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import EventDetailScreen from '../screens/EventDetail';
 import SearchEventScreen from '../screens/SearchEventScreen';
 import CreateEventScreen from '../screens/CreateEventScreen';
+import SeeProfile from '../screens/SeeProfile';
 
 const Stack = createNativeStackNavigator();
 const Navigator = () => {
@@ -24,7 +25,8 @@ const Navigator = () => {
             <Stack.Screen component={HomeScreen} name='Home' />
             <Stack.Screen component={EditProfileScreen} name='EditProfile' options={{headerShown: true}} />
             <Stack.Screen component={EventDetailScreen} name='EventDetail' options={{headerShown: true}} />
-            <Stack.Screen component={SearchEventScreen} name='SearchEvent' options={{headerShown: true}} />
+            <Stack.Screen component={SearchEventScreen} name='SearchEvent' options={{headerShown: true, headerTitle: 'Search Events'}} />
+            <Stack.Screen component={SeeProfile} name='SeeProfile' options={{headerShown: true}} />
             <Stack.Screen component={CreateEventScreen} name='CreateEvent' options={{headerShown: true, headerTitle: 'Create an Event'}} />
             <Stack.Screen component={SetProfileImage} name='SetPI' options={{headerShown: true, headerTitle: 'Set Profile Image', headerStyle:{elevation: 0}}} />
         </Stack.Navigator>

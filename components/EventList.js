@@ -3,9 +3,9 @@ import {View, TouchableOpacity, Text, StyleSheet, Image, Dimensions} from 'react
 
 const EventList = ({eventName='', eventTime='', onPress=()=>{}, imageSource, host=''}) => {
   return (
-    <View style={{width: Dimensions.get('window').width-Dimensions.get('window').width*10/100, marginRight: 20}}>
+    <View style={{width: '100%'}}>
         <TouchableOpacity  onPress={onPress} style={styles.container}>
-            <Image style={styles.image} source={require('../assets/images/back.jpg')} />
+            <Image style={styles.image} source={{uri: imageSource}} />
             <View style={{flex: 1}}>
                 <Text style={{color: 'black', fontWeight: 'bold', marginHorizontal: 10}}>{eventName} <Text>on {eventTime}</Text></Text>
                 <Text style={{color: 'gray', marginHorizontal: 10}}>by {host}</Text>

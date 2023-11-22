@@ -1,45 +1,47 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity } from 'react-native';
-
-// Dummy event data for testing
-const dummyEventData = [
-  { id: '1', name: 'Tech Conference 2023', location: 'Convention Center', date: 'Dec 15, 2023' },
-  { id: '2', name: 'Art Exhibition', location: 'Art Gallery', date: 'Jan 5, 2024' },
-  { id: '3', name: 'Fitness Workshop', location: 'Fitness Center', date: 'Feb 20, 2024' },
-  // Add more dummy events as needed
-];
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import database from '@react-native-firebase/database';
+import EventList from '../components/EventList';
 
 const SearchEventScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filteredEvents, setFilteredEvents] = useState([]);
 
-  const handleSearch = () => {
-    // Replace this with your actual logic for searching events based on the searchQuery
-    const filteredEvents = dummyEventData.filter((event) =>
-      event.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setSearchResults(filteredEvents);
+  const getEvents = () => {
+    const ref = database().ref('/events');
+    try {
+      ref.on('value', (snapshot) => {
+        if (snapshot.exists()) {
+          const allEvents = Object.values(snapshot.val());
+          setEvents(allEvents);
+          setFilteredEvents(allEvents); // Initialize filtered events with all events
+          setLoading(false);
+        } else {
+          setEvents([]);
+          setFilteredEvents([]);
+          setLoading(false);
+        }
+      });
+    } catch (error) {
+      alert('Restart the app, something went wrong');
+    }
   };
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.eventItem}
-      onPress={() =>
-        navigation.navigate('EventDetail', {
-          eventName: item.name,
-          eventLocation: item.location,
-          eventDate: item.date,
-          eventDescription:
-      'Join us for an exciting day of technology discussions, workshops, and networking. Learn from industry experts and connect with fellow tech enthusiasts.',
-          // Add more event details as needed
-        })
-      }
-    >
-      <Text style={styles.eventName}>{item.name}</Text>
-      <Text style={styles.eventLocation}>{item.location}</Text>
-      <Text style={styles.eventDate}>{item.date}</Text>
-    </TouchableOpacity>
-  );
+  useEffect(() => {
+    getEvents();
+  }, []);
+
+  const handleSearch = () => {
+    // Filter events based on the search query
+    const filtered = events.filter(
+      (event) =>
+        event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.host.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredEvents(filtered);
+  };
 
   return (
     <View style={styles.container}>
@@ -51,12 +53,37 @@ const SearchEventScreen = ({ navigation }) => {
         onChangeText={(text) => setSearchQuery(text)}
         onSubmitEditing={handleSearch}
       />
-      <FlatList
-        data={searchResults}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        style={styles.eventList}
-      />
+
+      {!loading ? (
+        <FlatList
+          data={filteredEvents}
+          renderItem={({ item }) => (
+            <EventList
+              eventName={item.eventName}
+              onPress={() =>
+                navigation.navigate('EventDetail', {
+                  eventName: item.eventName,
+                  eventTime: item.eventTime,
+                  eventDescription: item.eventDescription,
+                  eventLocation: 'online',
+                  eventImage: item.thumbnail,
+                  uid: item.uid,
+                  host: item.host,
+                  actualDate: item.actualDate,
+                })
+              }
+              eventTime={item.eventTime}
+              imageSource={item.thumbnail}
+              host={item.host}
+              key={item.id}
+            />
+          )}
+        />
+      ) : (
+        <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, backgroundColor: '#fff' }}>
+          <ActivityIndicator size={'small'} color={'royalblue'} />
+        </View>
+      )}
     </View>
   );
 };
