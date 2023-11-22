@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import auth from '@react-native-firebase/auth';
 
 const EventDetailScreen = ({ route, navigation }) => {
   const { eventName, eventTime, eventLocation, eventDescription, eventImage, host, actualDate, uid } = route.params;
-
+  const user = auth().currentUser;
   const [isJoinButtonEnabled, setJoinButtonEnabled] = useState(false);
 
   useEffect(() => {
@@ -24,19 +25,11 @@ const EventDetailScreen = ({ route, navigation }) => {
 
   const handleJoinEvent = () => {
     if (isJoinButtonEnabled) {
-      // Implement your logic for joining the event
-      // This could include navigating to a registration screen or any other relevant action
       console.log(`Joined event: ${eventName}`);
     } else {
       console.log(`Event time has not arrived yet.`);
       Alert.alert('Notification', 'You will be notified when the event becomes available.');
     }
-  };
-
-  const handleGetNotified = () => {
-    // Implement your logic for getting notified
-    // This could include showing a notification screen or triggering a notification
-    console.log(`Get Notified for event: ${eventName}`);
   };
 
   return (
@@ -56,15 +49,10 @@ const EventDetailScreen = ({ route, navigation }) => {
           style={[styles.joinButton, { backgroundColor: isJoinButtonEnabled ? 'royalblue' : 'gray' }]}
           onPress={handleJoinEvent}
           disabled={!isJoinButtonEnabled}>
-          <Text style={styles.joinButtonText}>{isJoinButtonEnabled ? 'Join Event' : 'Can\'t Join Event Now'}</Text>
+          <Text style={styles.joinButtonText}>{isJoinButtonEnabled ? user.uid===uid?'Start Event':'Join Event' :  user.uid===uid?'Can\'t Start Event Now':'Can\'t Join Event Now'}</Text>
         </TouchableOpacity>
 
-        {/* Get Notified Button */}
-        {!isJoinButtonEnabled && (
-          <TouchableOpacity style={styles.notifyButton} onPress={handleGetNotified}>
-            <Text style={styles.notifyButtonText}>Get Notified</Text>
-          </TouchableOpacity>
-        )}
+        
       </View>
     </ScrollView>
   );
